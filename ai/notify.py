@@ -126,9 +126,12 @@ def push_server_chan(text, key):
     """Push via Server酱 (WeChat)."""
     url = f"https://sctapi.ftqq.com/{key}.send"
     title = f"A-Insight Daily {datetime.now().strftime('%Y-%m-%d')}"
+    print(f"  Calling Server酱 API...")
     try:
-        resp = requests.post(url, data={"title": title, "desp": text}, timeout=15)
+        resp = requests.post(url, data={"title": title, "desp": text}, timeout=10)
+        print(f"  Server酱 response: code={resp.status_code}")
         result = resp.json()
+        print(f"  Server酱 result: {result}")
         if result.get("code") == 0:
             print(f"WeChat push OK (Server酱)")
             return True
@@ -149,15 +152,17 @@ def push():
     cfg = load_config()
     text = build_content()
 
-    print(f"Config: server_chan_key={'***' if cfg.get('server_chan_key') else 'MISSING'}, smtp_host={cfg.get('smtp_host') or 'MISSING'}, to_email={cfg.get('to_email') or 'MISSING'}")
+    print(f"Config: server_chan={'SET' if cfg.get('server_chan_key') else 'MISSING'}, smtp={'SET' if cfg.get('smtp_host') else 'MISSING'}")
 
     print("Sending push...")
     key = cfg.get("server_chan_key", "")
     if key:
+        print(f"  Server酱 key length: {len(key)}, first4: {key[:4]}")
         ok = push_server_chan(text, key)
         if ok:
             print("=" * 40)
             return
+        print("  Server酱 failed, trying fallback...")
 
     # Channel 2: SMTP email (fallback)
     if cfg.get("smtp_host"):

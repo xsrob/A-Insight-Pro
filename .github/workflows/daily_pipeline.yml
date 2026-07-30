@@ -81,7 +81,7 @@ jobs:
         python -m ai.daily_report 2>&1 || echo "WARNING: report failed"
 
         echo "=== [8/8] Notification ==="
-        python -m ai.notify 2>&1 || echo "WARNING: notify failed"
+        python ai/notify.py 2>&1 || echo "WARNING: notify failed"
 
     - name: Upload report artifact
       uses: actions/upload-artifact@v4

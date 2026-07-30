@@ -149,6 +149,8 @@ def push():
     cfg = load_config()
     text = build_content()
 
+    print(f"Config: server_chan_key={'***' if cfg.get('server_chan_key') else 'MISSING'}, smtp_host={cfg.get('smtp_host') or 'MISSING'}, to_email={cfg.get('to_email') or 'MISSING'}")
+
     print("Sending push...")
     key = cfg.get("server_chan_key", "")
     if key:
@@ -161,6 +163,8 @@ def push():
     if cfg.get("smtp_host"):
         print("Trying email fallback...")
         _send_email(text, cfg)
+    else:
+        print("No push channel configured!")
 
     print("=" * 40)
 

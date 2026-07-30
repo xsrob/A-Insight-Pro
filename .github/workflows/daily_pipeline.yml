@@ -81,7 +81,24 @@ jobs:
         python -m ai.daily_report 2>&1 || echo "WARNING: report failed"
 
         echo "=== [8/8] Notification ==="
-        python scripts/github_notify.py 2>&1 || echo "WARNING: notify failed"
+        echo "WORKFLOW-V5-INLINE-TEST"
+        python -c "
+import os
+key = os.environ.get('SERVER_CHAN_KEY', '')
+smtp = os.environ.get('SMTP_HOST', '')
+print(f'SERVER_CHAN_KEY: {\"SET (len={})\".format(len(key)) if key else \"MISSING\"}')
+print(f'SMTP_HOST: {smtp or \"MISSING\"}')
+if key:
+    import requests
+    url = f'https://sctapi.ftqq.com/{key}.send'
+    try:
+        r = requests.post(url, data={'title': 'A-Insight Test', 'desp': 'GitHub Actions push test'}, timeout=10)
+        print(f'Response: {r.json()}')
+    except Exception as e:
+        print(f'Error: {e}')
+else:
+    print('No push channel configured')
+" 2>&1 || echo "WARNING: notify failed"
 
     - name: Upload report artifact
       uses: actions/upload-artifact@v4

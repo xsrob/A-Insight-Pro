@@ -46,6 +46,13 @@ jobs:
 
     - name: Run pipeline (if market open)
       if: always() && !steps.market_check.outputs.skip
+      env:
+        SMTP_HOST: ${{ secrets.SMTP_HOST }}
+        SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        SMTP_USER: ${{ secrets.SMTP_USER }}
+        SMTP_PASS: ${{ secrets.SMTP_PASS }}
+        TO_EMAIL: ${{ secrets.TO_EMAIL }}
+        SERVER_CHAN_KEY: ${{ secrets.SERVER_CHAN_KEY }}
       run: |
         set -e
         echo "=== [1/8] Market Emotion ==="

@@ -1,0 +1,6 @@
+{
+    "predict_weight": 0.35,
+    "win_rate_weight": 0.35,
+    "return_weight": 0.2,
+    "risk_weight": 0.15
+}

@@ -1,0 +1,8 @@
+{
+  "server_chan_key": "YOUR_SERVER_CHAN_KEY",
+  "smtp_host": "smtp.qq.com",
+  "smtp_port": 465,
+  "smtp_user": "your_email@qq.com",
+  "smtp_pass": "YOUR_QQ_SMTP_AUTH_CODE",
+  "to_email": "your_email@qq.com"
+}

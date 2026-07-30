@@ -1,0 +1,138 @@
+@echo off
+
+title A-Insight Pro AI Daily System V2
+
+
+cd /d D:\DProjectsA-Insight-Pro
+
+
+
+if not exist logs (
+
+    mkdir logs
+
+)
+
+
+
+set LOGFILE=logs\daily_%date:~0,4%-%date:~5,2%-%date:~8,2%.log
+
+
+
+echo =============================== >> %LOGFILE%
+
+echo A-Insight Pro Daily Start >> %LOGFILE%
+
+echo %date% %time% >> %LOGFILE%
+
+echo =============================== >> %LOGFILE%
+
+
+
+
+
+echo.
+echo ===============================
+echo A-Insight Pro 自动运行系统
+echo ===============================
+
+
+
+
+
+echo [1/5] AI预测 >> %LOGFILE%
+
+call venv\Scripts\python.exe ai\predict.py >> %LOGFILE% 2>&1
+
+
+
+if errorlevel 1 (
+
+    echo Predict ERROR >> %LOGFILE%
+
+)
+
+
+
+echo [2/5] AI评分 >> %LOGFILE%
+
+call venv\Scripts\python.exe ai\scoring.py >> %LOGFILE% 2>&1
+
+
+
+if errorlevel 1 (
+
+    echo Scoring ERROR >> %LOGFILE%
+
+)
+
+
+
+
+echo [3/5] 历史复盘 >> %LOGFILE%
+
+call venv\Scripts\python.exe ai\review.py >> %LOGFILE% 2>&1
+
+
+
+if errorlevel 1 (
+
+    echo Review ERROR >> %LOGFILE%
+
+)
+
+
+
+
+
+echo [4/5] AI学习 >> %LOGFILE%
+
+call venv\Scripts\python.exe ai\self_learning.py >> %LOGFILE% 2>&1
+
+
+
+if errorlevel 1 (
+
+    echo Learning ERROR >> %LOGFILE%
+
+)
+
+
+
+
+
+echo [5/5] 生成日报 >> %LOGFILE%
+
+call venv\Scripts\python.exe ai\daily_report.py >> %LOGFILE% 2>&1
+
+
+
+if errorlevel 1 (
+
+    echo Report ERROR >> %LOGFILE%
+
+)
+
+
+
+
+
+echo =============================== >> %LOGFILE%
+
+echo A-Insight Pro Daily Finish >> %LOGFILE%
+
+echo %date% %time% >> %LOGFILE%
+
+echo =============================== >> %LOGFILE%
+
+
+
+
+
+echo.
+echo 今日任务完成
+echo 日志:
+echo %LOGFILE%
+
+
+pause

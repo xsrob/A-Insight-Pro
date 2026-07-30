@@ -1,0 +1,93 @@
+name: A-Insight Pro Daily Pipeline
+
+on:
+  schedule:
+    # 8:30 AM Beijing time = 00:30 UTC, Mon-Fri
+    - cron: '30 0 * * 1-5'
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  daily-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install pandas numpy scikit-learn joblib pyyaml akshare streamlit plotly
+        pip install openpyxl  # for Excel support
+
+    - name: Create directories
+      run: |
+        mkdir -p reports logs models data features config
+
+    - name: Check if market is open (skip weekends/holidays)
+      id: market_check
+      run: |
+        python -c "
+        from datetime import datetime
+        import json
+        now = datetime.now()
+        # Simple weekend check (holiday check would need akshare calendar)
+        if now.weekday() >= 5:
+            print('Market closed (weekend), skipping')
+            with open('skip.txt', 'w') as f: f.write('skip')
+        else:
+            print('Market day, running pipeline')
+        "
+
+    - name: Run pipeline (if market open)
+      if: always() && !steps.market_check.outputs.skip
+      run: |
+        set -e
+        echo "=== [1/8] Market Emotion ==="
+        python -m ai.emotion 2>&1 || echo "WARNING: emotion failed"
+
+        echo "=== [2/8] AI Prediction ==="
+        python -m ai.predict 2>&1 || echo "WARNING: predict failed"
+
+        echo "=== [3/8] AI Scoring ==="
+        python -m ai.scoring 2>&1 || echo "WARNING: scoring failed"
+
+        echo "=== [4/8] Historical Review ==="
+        python -c "
+        import warnings; warnings.filterwarnings('ignore')
+        from ai.historical_review import run
+        run(sample_step=30, max_stocks=None)
+        " 2>&1 || echo "WARNING: historical review failed"
+
+        echo "=== [5/8] Self-Learning ==="
+        python -m ai.self_learning 2>&1 || echo "WARNING: learning failed"
+
+        echo "=== [6/8] Weight Learning ==="
+        python -m ai.weight_learning 2>&1 || echo "WARNING: weight failed"
+
+        echo "=== [7/8] Daily Report ==="
+        python -m ai.daily_report 2>&1 || echo "WARNING: report failed"
+
+        echo "=== [8/8] Notification ==="
+        python -m ai.notify 2>&1 || echo "WARNING: notify failed"
+
+    - name: Upload report artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: daily-report-${{ github.run_id }}
+        path: |
+          reports/final_stock_rank.csv
+          reports/daily_report.html
+          reports/market_emotion.csv
+          reports/historical_review_summary.csv
+
+    - name: Notify failure
+      if: failure()
+      run: |
+        echo "Pipeline failed! Check: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

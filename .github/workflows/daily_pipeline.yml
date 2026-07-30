@@ -22,7 +22,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install pandas numpy scikit-learn joblib pyyaml akshare streamlit plotly
+        pip install pandas numpy scikit-learn joblib pyyaml akshare streamlit plotly requests
         pip install openpyxl  # for Excel support
 
     - name: Create directories

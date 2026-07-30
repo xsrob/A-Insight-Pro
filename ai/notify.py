@@ -146,7 +146,7 @@ def push_server_chan(text, key):
 def push():
     """Main entry — tries WeChat push first, falls back to email."""
     print("=" * 40)
-    print("A-Insight Daily Push")
+    print("A-Insight Daily Push V2.0-DEBUG")
     print("=" * 40)
 
     cfg = load_config()
